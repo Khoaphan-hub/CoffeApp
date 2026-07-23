@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Coffee App Brand Colors -->
+    <color name="primary">#321D0B</color> <!-- Dark Brown -->
+    <color name="primary_light">#4E342E</color>
+    <color name="accent">#D4A373</color> <!-- Golden Brown -->
+    <color name="background">#FDF8F5</color>
+    <color name="text_primary">#321D0B</color>
+    <color name="text_secondary">#7D7D7D</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="divider">#EEEEEE</color>
+    <color name="status_ongoing">#FF9800</color>
+    <color name="status_history">#4CAF50</color>
 </resources>
