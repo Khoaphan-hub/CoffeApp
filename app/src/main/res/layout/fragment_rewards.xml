@@ -50,7 +50,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/primary"
+                app:cardBackgroundColor= "#324A59"
                 app:cardCornerRadius="16dp">
 
                 <LinearLayout
@@ -83,11 +83,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/btn_primary_rounded"
-                        android:backgroundTint="@color/accent"
+                        android:backgroundTint= "#4A6572"
                         android:paddingHorizontal="24dp"
                         android:text="Redeem Now"
                         android:textAllCaps="false"
-                        android:textColor="@color/primary"
+                        android:textColor="@color/white"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

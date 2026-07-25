@@ -59,7 +59,7 @@ public class HomeFragment extends Fragment {
 
     private void setupUserHeader() {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
-        String name = prefs.getString(Constants.KEY_USER_NAME, "Guest");
+        String name = prefs.getString(Constants.KEY_USER_NAME, "Anderson");
         int stamps = prefs.getInt(Constants.KEY_STAMPS, 0);
         
         tvUserName.setText(name);
@@ -69,9 +69,9 @@ public class HomeFragment extends Fragment {
         for (int k = 0; k < stampContainer.getChildCount(); k++) {
             ImageView iv = (ImageView) stampContainer.getChildAt(k);
             if (k < stamps) {
-                iv.setImageResource(R.drawable.ic_stamp_empty);
-            } else {
                 iv.setImageResource(R.drawable.ic_stamp_filled);
+            } else {
+                iv.setImageResource(R.drawable.ic_stamp_empty);
             }
         }
     }

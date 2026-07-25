@@ -19,4 +19,7 @@ public class Constants {
     public static final String KEY_USER_NAME = "userName";
     public static final String KEY_STAMPS = "loyaltyStamps";
     public static final String KEY_POINTS = "rewardPoints";
+    public static final String KEY_USER_PHONE = "userPhone";
+    public static final String KEY_USER_EMAIL = "userEmail";
+    public static final String KEY_USER_ADDRESS = "userAddress";
 }
