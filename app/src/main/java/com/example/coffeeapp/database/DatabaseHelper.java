@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "CoffeeCup.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Cart Table
     public static final String TABLE_CART = "cart";
@@ -40,6 +40,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_POINT_DATE = "date";
     public static final String COLUMN_POINT_AMOUNT = "amount";
     public static final String COLUMN_POINT_SOURCE = "source";
+
+    // Gift History Table
+    public static final String TABLE_GIFT = "gift_history";
+    public static final String COLUMN_GIFT_ID = "id";
+    public static final String COLUMN_GIFT_DRINK = "drink_name";
+    public static final String COLUMN_GIFT_TABLE = "table_number";
+    public static final String COLUMN_GIFT_MESSAGE = "message";
+    public static final String COLUMN_GIFT_DATE = "date";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -73,6 +81,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_POINT_AMOUNT + " INTEGER,"
                 + COLUMN_POINT_SOURCE + " TEXT" + ")";
         db.execSQL(CREATE_POINTS_TABLE);
+
+        String CREATE_GIFT_TABLE = "CREATE TABLE " + TABLE_GIFT + "("
+                + COLUMN_GIFT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_GIFT_DRINK + " TEXT,"
+                + COLUMN_GIFT_TABLE + " TEXT,"
+                + COLUMN_GIFT_MESSAGE + " TEXT,"
+                + COLUMN_GIFT_DATE + " TEXT" + ")";
+        db.execSQL(CREATE_GIFT_TABLE);
     }
 
     @Override
@@ -84,10 +100,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_POINT_AMOUNT + " INTEGER,"
                     + COLUMN_POINT_SOURCE + " TEXT" + ")";
             db.execSQL(CREATE_POINTS_TABLE);
-        } else {
+        }
+        if (oldVersion < 3) {
+            String CREATE_GIFT_TABLE = "CREATE TABLE " + TABLE_GIFT + "("
+                    + COLUMN_GIFT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_GIFT_DRINK + " TEXT,"
+                    + COLUMN_GIFT_TABLE + " TEXT,"
+                    + COLUMN_GIFT_MESSAGE + " TEXT,"
+                    + COLUMN_GIFT_DATE + " TEXT" + ")";
+            db.execSQL(CREATE_GIFT_TABLE);
+        }
+        if (oldVersion >= 3 && newVersion > oldVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CART);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_POINTS_HISTORY);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_GIFT);
             onCreate(db);
         }
     }
@@ -167,5 +194,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void clearPointsHistory() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_POINTS_HISTORY, null, null);
+    }
+
+    // Gift Operations
+    public void addGift(String drink, String table, String message, String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_GIFT_DRINK, drink);
+        values.put(COLUMN_GIFT_TABLE, table);
+        values.put(COLUMN_GIFT_MESSAGE, message);
+        values.put(COLUMN_GIFT_DATE, date);
+        db.insert(TABLE_GIFT, null, values);
     }
 }
