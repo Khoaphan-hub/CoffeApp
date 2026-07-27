@@ -1,5 +1,6 @@
 package com.example.coffeeapp.ui.cart;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -10,6 +11,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.coffeeapp.R;
+// Nhớ kiểm tra xem đường dẫn import MainActivity này có đúng với project của bạn không nhé
+import com.example.coffeeapp.ui.main.MainActivity;
 
 public class OrderSuccessActivity extends AppCompatActivity {
 
@@ -19,7 +22,6 @@ public class OrderSuccessActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_order_success);
 
-        // Fix UI overlap with status bar
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.orderSuccessRoot), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -28,8 +30,13 @@ public class OrderSuccessActivity extends AppCompatActivity {
 
         Button btnTrackOrder = findViewById(R.id.btnTrackOrder);
         btnTrackOrder.setOnClickListener(v -> {
-            // Navigation to My Orders handled via MainActivity's Bottom Nav
-            // or specific Fragment transaction. For now, just close.
+
+            Intent intent = new Intent(OrderSuccessActivity.this, MainActivity.class);
+            intent.putExtra("NAVIGATE_TO", "OPEN_ORDERS");
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            startActivity(intent);
             finish();
         });
     }

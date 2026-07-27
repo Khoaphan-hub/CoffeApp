@@ -31,6 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ORDER_ID = "id";
     public static final String COLUMN_ORDER_DATE = "order_date";
     public static final String COLUMN_ORDER_PRICE = "total_price";
+    public static final String COLUMN_ORDER_CALORIES = "total_calories";
     public static final String COLUMN_ORDER_ITEMS = "items_summary";
     public static final String COLUMN_ORDER_STATUS = "status"; // Ongoing, History
 

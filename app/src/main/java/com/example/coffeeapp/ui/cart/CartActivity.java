@@ -178,7 +178,7 @@ public class CartActivity extends AppCompatActivity {
             Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        btnCheckout.setEnabled(false);
         StringBuilder summary = new StringBuilder();
         double total = 0;
         int totalCups = 0;
@@ -202,6 +202,7 @@ public class CartActivity extends AppCompatActivity {
             // ĐÃ XÓA startActivity() và finish() ở đây!
         } else {
             Toast.makeText(this, "Checkout failed", Toast.LENGTH_SHORT).show();
+            btnCheckout.setEnabled(true);
         }
     }
 

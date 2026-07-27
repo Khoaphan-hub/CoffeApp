@@ -181,10 +181,10 @@ public class HomeFragment extends Fragment {
     private void handleGiftTransaction(String drink, String table, String message) {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         int currentPoints = prefs.getInt(Constants.KEY_POINTS, 0);
-        int giftCost = 500;
+        int giftCost = 1500;
 
         if (currentPoints < giftCost) {
-            Toast.makeText(getContext(), "Not enough points! (Need 500 pts)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Not enough points! (Need 1500 pts)", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -232,8 +232,10 @@ public class HomeFragment extends Fragment {
             ImageView iv = (ImageView) stampContainer.getChildAt(k);
             if (k < stamps) {
                 iv.setImageResource(R.drawable.ic_stamp_filled);
+                iv.clearColorFilter();
             } else {
                 iv.setImageResource(R.drawable.ic_stamp_empty);
+                iv.clearColorFilter();
             }
         }
     }

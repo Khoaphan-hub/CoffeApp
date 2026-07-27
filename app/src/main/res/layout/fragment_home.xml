@@ -114,57 +114,69 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:id="@+id/stampContainer"
+            <!-- ĐÃ THÊM: Khối CardView nền trắng bo góc bọc lấy các ly cà phê -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
                 app:layout_constraintTop_toBottomOf="@id/tvLoyaltyTitle">
 
-                <!-- 8 Stamp placeholders -->
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_filled" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_filled" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_filled" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_filled" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_empty" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_empty" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_empty" />
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_stamp_empty" />
+                <LinearLayout
+                    android:id="@+id/stampContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="16dp">
 
-            </LinearLayout>
+                    <!-- 8 Stamp placeholders -->
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_filled" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_filled" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_filled" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_filled" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_empty" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_empty" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_empty" />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_stamp_empty" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
