@@ -88,7 +88,7 @@ public class CartActivity extends AppCompatActivity {
                 int qty = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_QUANTITY));
 
                 cartItems.add(new CartItem(id, coffeeId, name, shot, size, ice, price, calories, qty));
-                total += price * qty;
+                total += price;
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -121,13 +121,54 @@ public class CartActivity extends AppCompatActivity {
                 adapter.notifyItemRemoved(position);
                 updateTotalPrice();
             }
+
+            // THÊM MỚI: Xử lý hiệu ứng đồ họa khi người dùng vuốt item
+            @Override
+            public void onChildDraw(@NonNull android.graphics.Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                android.view.View itemView = viewHolder.itemView;
+                // Tạo nền màu đỏ nhạt (mã màu giống trong ảnh mẫu)
+                android.graphics.drawable.ColorDrawable background = new android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#FFEAEA"));
+
+                // Sử dụng icon thùng rác mặc định của hệ thống Android
+                android.graphics.drawable.Drawable trashIcon = androidx.core.content.ContextCompat.getDrawable(CartActivity.this, android.R.drawable.ic_menu_delete);
+                if (trashIcon != null) {
+                    // Tô màu đỏ đậm cho icon thùng rác
+                    trashIcon.setTint(android.graphics.Color.parseColor("#FF4C4C"));
+                }
+
+                if (dX < 0) { // Nếu đang vuốt sang trái
+                    // Tính toán và vẽ khối nền màu đỏ
+                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                    background.draw(c);
+
+                    // Tính toán vị trí để vẽ icon thùng rác nằm giữa khối màu đỏ
+                    if (trashIcon != null) {
+                        int iconMargin = (itemView.getHeight() - trashIcon.getIntrinsicHeight()) / 2;
+                        int iconTop = itemView.getTop() + iconMargin;
+                        int iconBottom = iconTop + trashIcon.getIntrinsicHeight();
+                        int iconLeft = itemView.getRight() - iconMargin - trashIcon.getIntrinsicWidth();
+                        int iconRight = itemView.getRight() - iconMargin;
+
+                        // Chỉ cho phép icon hiện ra khi đã vuốt đủ khoảng cách
+                        if (itemView.getRight() + (int) dX < iconLeft) {
+                            trashIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                            trashIcon.draw(c);
+                        }
+                    }
+                } else {
+                    // Trả lại trạng thái mặc định nếu không vuốt
+                    background.setBounds(0, 0, 0, 0);
+                }
+            }
         }).attachToRecyclerView(rvCart);
     }
 
     private void updateTotalPrice() {
         double total = 0;
         for (CartItem item : cartItems) {
-            total += item.getTotalPrice() * item.getQuantity();
+            total += item.getTotalPrice();
         }
         tvTotalCartPrice.setText(String.format(Locale.getDefault(), "$%.2f", total));
     }
@@ -143,7 +184,7 @@ public class CartActivity extends AppCompatActivity {
         int totalCups = 0;
         for (CartItem item : cartItems) {
             summary.append(item.getCoffeeName()).append(", ");
-            total += item.getTotalPrice() * item.getQuantity();
+            total += item.getTotalPrice() ;
             totalCups += item.getQuantity();
         }
         if (summary.length() > 0) summary.setLength(summary.length() - 2);

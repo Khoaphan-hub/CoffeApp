@@ -26,11 +26,13 @@ import java.util.Locale;
 public class DetailsActivity extends AppCompatActivity {
 
     private Coffee coffee;
-    private TextView tvProductName, tvTotalPrice, tvCaloriesValue, tvSugarValue, tvFatValue;
+    private TextView tvProductName, tvTotalPrice, tvCaloriesValue, tvSugarValue, tvFatValue, tvQuantity;
     private RadioGroup rgShot, rgSize, rgIce;
     private Button btnAddToCart;
     private ImageButton btnBack;
     private ImageView ivProduct;
+    private TextView btnIncrease, btnDecrease;
+    private int quantity = 1;
 
     private DatabaseHelper dbHelper;
 
@@ -67,6 +69,10 @@ public class DetailsActivity extends AppCompatActivity {
         rgIce = findViewById(R.id.rgIce);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBack = findViewById(R.id.btnBack);
+        // Ánh xạ các UI của bộ đếm số lượng
+        tvQuantity = findViewById(R.id.tvQuantity);
+        btnIncrease = findViewById(R.id.btnIncrease);
+        btnDecrease = findViewById(R.id.btnDecrease);
         btnBack.setZ(10f); // Force high Z-index
         findViewById(R.id.btnCartPreview).setZ(10f); // Force high Z-index
         ivProduct = findViewById(R.id.ivProduct);
@@ -76,6 +82,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (coffee != null) {
             tvProductName.setText(coffee.getName());
             ivProduct.setImageResource(coffee.getImageResId());
+            tvQuantity.setText(String.valueOf(quantity));
         }
     }
 
@@ -86,7 +93,18 @@ public class DetailsActivity extends AppCompatActivity {
         rgShot.setOnCheckedChangeListener((group, checkedId) -> updateDynamicValues());
         rgSize.setOnCheckedChangeListener((group, checkedId) -> updateDynamicValues());
         rgIce.setOnCheckedChangeListener((group, checkedId) -> updateDynamicValues());
-
+        btnDecrease.setOnClickListener(v -> {
+            if (quantity > 1) {
+                quantity--;
+                tvQuantity.setText(String.valueOf(quantity));
+                updateDynamicValues();
+            }
+        });
+        btnIncrease.setOnClickListener(v -> {
+            quantity++;
+            tvQuantity.setText(String.valueOf(quantity));
+            updateDynamicValues();
+        });
         btnAddToCart.setOnClickListener(v -> addToCart());
     }
 
@@ -97,8 +115,8 @@ public class DetailsActivity extends AppCompatActivity {
         if (sizeId == R.id.rbMedium) size = "Medium";
         else if (sizeId == R.id.rbLarge) size = "Large";
 
-        double price = CalorieEngine.calculatePrice(coffee.getBasePrice(), size, shot);
-        int calories = CalorieEngine.calculateCalories(coffee.getBaseCalories(), size, shot);
+        double price = CalorieEngine.calculatePrice(coffee.getBasePrice(), size, shot) * quantity ;
+        int calories = CalorieEngine.calculateCalories(coffee.getBaseCalories(), size, shot) * quantity;
 
         tvTotalPrice.setText(String.format(Locale.getDefault(), "$%.2f", price));
         tvCaloriesValue.setText(String.valueOf(calories));
@@ -119,12 +137,12 @@ public class DetailsActivity extends AppCompatActivity {
         if (iceId == R.id.rbNoIce) ice = "None";
         else if (iceId == R.id.rbLessIce) ice = "Less";
 
-        double price = CalorieEngine.calculatePrice(coffee.getBasePrice(), size, shot);
-        int calories = CalorieEngine.calculateCalories(coffee.getBaseCalories(), size, shot);
+        double price = CalorieEngine.calculatePrice(coffee.getBasePrice(), size, shot) * quantity;
+        int calories = CalorieEngine.calculateCalories(coffee.getBaseCalories(), size, shot) * quantity;
 
-        long result = dbHelper.addToCart(coffee.getId(), coffee.getName(), shot, size, ice, price, calories, 1);
+        long result = dbHelper.addToCart(coffee.getId(), coffee.getName(), shot, size, ice, price, calories, quantity);
         if (result != -1) {
-            Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Added " + quantity + " items to cart!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(DetailsActivity.this, CartActivity.class);
             startActivity(intent);
             finish();

@@ -50,6 +50,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         
         // Setup swipe to delete handled by ItemTouchHelper in Activity, 
         // but can add a delete button or handle long click here if needed.
+        for (com.example.coffeeapp.model.Coffee coffee : com.example.coffeeapp.utils.Constants.getCoffeeList()) {
+            if (coffee.getId() == item.getCoffeeId()) {
+                holder.ivImage.setImageResource(coffee.getImageResId());
+                break;
+            }
+        }
     }
 
     @Override

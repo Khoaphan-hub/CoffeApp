@@ -35,6 +35,7 @@ public class RewardsFragment extends Fragment {
     private Button btnRedeem;
     private RecyclerView rvPointsHistory;
     private DatabaseHelper dbHelper;
+    private android.widget.GridLayout rewardsStampContainer;
 
     @Nullable
     @Override
@@ -47,7 +48,8 @@ public class RewardsFragment extends Fragment {
         btnRedeem = view.findViewById(R.id.btnRedeem);
         btnResetPoints = view.findViewById(R.id.btnResetPoints);
         rvPointsHistory = view.findViewById(R.id.rvPointsHistory);
-        
+        rewardsStampContainer = view.findViewById(R.id.rewardsStampContainer);
+
         rvPointsHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         rvPointsHistory.setNestedScrollingEnabled(false);
         
@@ -88,7 +90,16 @@ public class RewardsFragment extends Fragment {
         
         tvTotalPoints.setText(String.format(Locale.getDefault(), "%,d", points));
         tvStampsProgress.setText(String.format(Locale.getDefault(), "%d of 8 stamps collected", stamps));
-        
+        if (rewardsStampContainer != null) {
+            for (int k = 0; k < rewardsStampContainer.getChildCount(); k++) {
+                android.widget.ImageView iv = (android.widget.ImageView) rewardsStampContainer.getChildAt(k);
+                if (k < stamps) {
+                    iv.setImageResource(R.drawable.ic_stamp_filled);
+                } else {
+                    iv.setImageResource(R.drawable.ic_stamp_empty);
+                }
+            }
+        }
         loadPointHistory();
     }
 
