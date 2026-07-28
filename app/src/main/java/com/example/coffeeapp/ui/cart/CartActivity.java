@@ -182,24 +182,38 @@ public class CartActivity extends AppCompatActivity {
         StringBuilder summary = new StringBuilder();
         double total = 0;
         int totalCups = 0;
+        int totalCalories = 0;
+
         for (CartItem item : cartItems) {
             summary.append(item.getCoffeeName()).append(", ");
             total += item.getTotalPrice() ;
             totalCups += item.getQuantity();
+            totalCalories += item.getTotalCalories();
         }
         if (summary.length() > 0) summary.setLength(summary.length() - 2);
 
+        SharedPreferences prefs = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        String userName = prefs.getString(Constants.KEY_USER_NAME, "Guest");
+        int imageResId = R.drawable.ic_cart;
+
+        if (!cartItems.isEmpty()) {
+            int firstCoffeeId = cartItems.get(0).getCoffeeId(); // Lấy ID của món đầu tiên
+
+            for (com.example.coffeeapp.model.Coffee coffee : Constants.getCoffeeList()) {
+                if (coffee.getId() == firstCoffeeId) {
+                    imageResId = coffee.getImageResId();
+                    break;
+                }
+            }
+        }
+
         String date = new SimpleDateFormat("dd MMM | hh:mm a", Locale.getDefault()).format(new Date());
-        long orderId = dbHelper.placeOrder(date, total, summary.toString());
+        long orderId = dbHelper.placeOrder(date, total, totalCalories, summary.toString(), userName, imageResId);
 
         if (orderId != -1) {
-            // Xóa giỏ hàng trước
             dbHelper.clearCart();
 
-            // Gọi hàm cập nhật điểm. Hàm này giờ sẽ tự chịu trách nhiệm đợi 2 giây rồi mới chuyển trang
             updateLoyaltyData(total, totalCups);
-
-            // ĐÃ XÓA startActivity() và finish() ở đây!
         } else {
             Toast.makeText(this, "Checkout failed", Toast.LENGTH_SHORT).show();
             btnCheckout.setEnabled(true);

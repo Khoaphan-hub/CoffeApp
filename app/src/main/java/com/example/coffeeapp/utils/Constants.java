@@ -22,4 +22,13 @@ public class Constants {
     public static final String KEY_USER_PHONE = "userPhone";
     public static final String KEY_USER_EMAIL = "userEmail";
     public static final String KEY_USER_ADDRESS = "userAddress";
+
+    public static int getImageForCoffee(int coffeeId) {
+        for (Coffee coffee : getCoffeeList()) {
+            if (coffee.getId() == coffeeId) {
+                return coffee.getImageResId();
+            }
+        }
+        return R.drawable.img_americano; // Default
+    }
 }

@@ -15,6 +15,7 @@ import com.example.coffeeapp.ui.home.HomeFragment;
 import com.example.coffeeapp.ui.orders.OrdersFragment;
 import com.example.coffeeapp.ui.profile.ProfileFragment;
 import com.example.coffeeapp.ui.rewards.RewardsFragment;
+import com.example.coffeeapp.ui.dashboard.DashboardFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new OrdersFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
+            } else if (itemId == R.id.nav_dashboard) { // <-- THÊM DÒNG NÀY
+                selectedFragment = new DashboardFragment(); // <-- THÊM DÒNG NÀY
             }
 
             if (selectedFragment != null) {

@@ -3,6 +3,7 @@ package com.example.coffeeapp.ui.home;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -23,16 +24,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coffeeapp.R;
 import com.example.coffeeapp.adapter.CoffeeAdapter;
+import com.example.coffeeapp.adapter.FavoriteAdapter;
 import com.example.coffeeapp.database.DatabaseHelper;
 import com.example.coffeeapp.model.Coffee;
+import com.example.coffeeapp.model.FavoriteItem;
 import com.example.coffeeapp.ui.cart.CartActivity;
 import com.example.coffeeapp.ui.details.DetailsActivity;
 import com.example.coffeeapp.utils.Constants;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,7 +50,8 @@ public class HomeFragment extends Fragment {
 
     private TextView tvUserName, tvStampCount;
     private LinearLayout stampContainer;
-    private RecyclerView rvCoffee;
+    private RecyclerView rvCoffee, rvFavorites;
+    private TabLayout tabLayoutHome;
     private DatabaseHelper dbHelper;
     private View viewGiftBadge;
     private FrameLayout layoutGiftBox;
@@ -61,6 +67,8 @@ public class HomeFragment extends Fragment {
         tvStampCount = view.findViewById(R.id.tvStampCount);
         stampContainer = view.findViewById(R.id.stampContainer);
         rvCoffee = view.findViewById(R.id.rvCoffee);
+        rvFavorites = view.findViewById(R.id.rvFavorites);
+        tabLayoutHome = view.findViewById(R.id.tabLayoutHome);
         layoutGiftBox = view.findViewById(R.id.layoutGiftBox);
         viewGiftBadge = view.findViewById(R.id.viewGiftBadge);
         ImageButton btnGoToCart = view.findViewById(R.id.btnGoToCart);
@@ -78,8 +86,31 @@ public class HomeFragment extends Fragment {
 
         setupUserHeader();
         setupRecyclerView();
-        
+        setupTabs();
+        loadFavorites();
+
         return view;
+    }
+
+    private void setupTabs() {
+        tabLayoutHome.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    rvCoffee.setVisibility(View.VISIBLE);
+                    rvFavorites.setVisibility(View.GONE);
+                } else {
+                    rvCoffee.setVisibility(View.GONE);
+                    rvFavorites.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
     }
 
     private void simulateIncomingGift() {
@@ -147,35 +178,51 @@ public class HomeFragment extends Fragment {
 
     private void showGiftDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_gift, null);
-        Spinner spinner = dialogView.findViewById(R.id.spinnerDrinks);
-        EditText etTable = dialogView.findViewById(R.id.etTableNumber);
-        EditText etMsg = dialogView.findViewById(R.id.etGiftMessage);
 
+        // 1. Khai báo View theo giao diện XML mới (Exposed Dropdown Menu & TextInputEditText)
+        android.widget.AutoCompleteTextView spinnerDrinks = dialogView.findViewById(R.id.spinnerDrinks);
+        com.google.android.material.textfield.TextInputEditText etTable = dialogView.findViewById(R.id.etTableNumber);
+        com.google.android.material.textfield.TextInputEditText etMsg = dialogView.findViewById(R.id.etGiftMessage);
+        com.google.android.material.button.MaterialButton btnSendGift = dialogView.findViewById(R.id.btnSendGift);
+
+        // 2. Nạp danh sách thức uống vào AutoCompleteTextView
         List<String> drinkNames = new ArrayList<>();
         for (Coffee c : Constants.getCoffeeList()) {
             drinkNames.add(c.getName());
         }
+        // Lưu ý: Dùng simple_dropdown_item_1line thay vì simple_spinner_item
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, drinkNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+                android.R.layout.simple_dropdown_item_1line, drinkNames);
+        spinnerDrinks.setAdapter(adapter);
 
-        new MaterialAlertDialogBuilder(requireContext())
+        // 3. Tạo Dialog (Bỏ các nút Positive/Negative mặc định vì ta đã có nút Send Gift trên XML)
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
-                .setPositiveButton("Send Gift", (dialog, which) -> {
-                    String selectedDrink = spinner.getSelectedItem().toString();
-                    String tableNum = etTable.getText().toString();
-                    String message = etMsg.getText().toString();
+                .create();
 
-                    if (tableNum.isEmpty()) {
-                        Toast.makeText(getContext(), "Please enter a table number", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+        // 4. Xử lý sự kiện khi bấm nút Send Gift của chúng ta
+        btnSendGift.setOnClickListener(v -> {
+            // Lấy dữ liệu (AutoCompleteTextView dùng getText thay vì getSelectedItem)
+            String selectedDrink = spinnerDrinks.getText().toString();
+            String tableNum = etTable.getText() != null ? etTable.getText().toString().trim() : "";
+            String message = etMsg.getText() != null ? etMsg.getText().toString().trim() : "";
 
-                    handleGiftTransaction(selectedDrink, tableNum, message);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+            // Validate dữ liệu đầu vào
+            if (selectedDrink.isEmpty() || selectedDrink.equals("Select a Drink")) {
+                Toast.makeText(getContext(), "Please select a drink", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (tableNum.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter a table number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Gọi hàm xử lý giao dịch và đóng dialog
+            handleGiftTransaction(selectedDrink, tableNum, message);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void handleGiftTransaction(String drink, String table, String message) {
@@ -217,6 +264,7 @@ public class HomeFragment extends Fragment {
         super.onResume();
         setupUserHeader();
         simulateIncomingGift();
+        loadFavorites();
     }
 
     private void setupUserHeader() {
@@ -248,5 +296,48 @@ public class HomeFragment extends Fragment {
             startActivity(intent);
         });
         rvCoffee.setAdapter(adapter);
+    }
+
+    private void loadFavorites() {
+        Cursor cursor = dbHelper.getFavorites();
+        List<FavoriteItem> favoriteList = new ArrayList<>();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAVORITE_ID));
+                int coffeeId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_COFFEE_ID));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_COFFEE_NAME));
+                String shot = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_SHOT));
+                String size = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_SIZE));
+                String ice = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_ICE));
+                double price = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_TOTAL_PRICE));
+                int calories = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FAV_TOTAL_CALORIES));
+
+                favoriteList.add(new FavoriteItem(id, coffeeId, name, shot, size, ice, price, calories));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        if (favoriteList.isEmpty()) {
+            // Optional: Hide "Favorites" tab or show empty state
+        }
+        
+        // Use GridLayoutManager (2 columns) for Favorites when selected, or keep standard list? 
+        // User didn't specify, but for consistency with main menu:
+        rvFavorites.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        FavoriteAdapter adapter = new FavoriteAdapter(favoriteList, new FavoriteAdapter.OnFavoriteClickListener() {
+            @Override
+            public void onQuickAdd(FavoriteItem item) {
+                dbHelper.addToCart(item.getCoffeeId(), item.getName(), item.getShot(), item.getSize(), item.getIce(), item.getTotalPrice(), item.getTotalCalories(), 1);
+                Toast.makeText(getContext(), "Added " + item.getName() + " to Cart!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRemove(FavoriteItem item) {
+                dbHelper.removeFavorite(item.getId());
+                loadFavorites(); // Refresh
+            }
+        });
+        rvFavorites.setAdapter(adapter);
     }
 }

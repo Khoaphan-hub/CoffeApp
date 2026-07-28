@@ -1,61 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/background"
     android:orientation="vertical"
     android:padding="24dp">
 
-    <TextView
+    <!-- Tiêu đề và Điểm thưởng được gom nhóm gọn gàng -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Gift a Surprise"
-        android:textColor="@color/text_primary"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select a Drink (Cost: 1500 pts)"
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp"/>
+        <!-- Icon hộp quà (Bạn có thể thay bằng icon ic_gift của riêng bạn) -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_circle_red"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_send"
+            app:tint="@color/white" />
 
-    <Spinner
-        android:id="@+id/spinnerDrinks"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gift a Surprise"
+                android:textColor="@color/text_primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Cost: 1,500 pts"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- NÂNG CẤP: Thay Spinner bằng Exposed Dropdown Menu -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select a Drink"
+        app:startIconDrawable="@android:drawable/ic_menu_gallery"
+        app:startIconTint="@color/primary">
+
+        <AutoCompleteTextView
+            android:id="@+id/spinnerDrinks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:padding="16dp"
+            android:textColor="@color/text_primary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Ô nhập số bàn -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:hint="Table Number (e.g. 05)"
+        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+        app:startIconTint="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etTableNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Table Number (e.g. 05)"
-            android:inputType="number" />
+            android:inputType="number"
+            android:padding="16dp"
+            android:textColor="@color/text_primary" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Ô nhập lời nhắn -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:layout_marginTop="16dp"
+        android:hint="Your message..."
+        app:startIconDrawable="@android:drawable/ic_menu_edit"
+        app:startIconTint="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etGiftMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Your message..."
+            android:gravity="top|start"
             android:inputType="textMultiLine"
-            android:minLines="2" />
+            android:lines="3"
+            android:padding="16dp"
+            android:textColor="@color/text_primary" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Đã thêm nút bấm gửi quà cho trọn vẹn -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSendGift"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="Send Gift"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/primary"
+        app:cornerRadius="12dp"
+        app:icon="@android:drawable/ic_menu_send"
+        app:iconGravity="textStart" />
 
 </LinearLayout>

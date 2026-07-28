@@ -63,6 +63,8 @@ public class LuckyWheelActivity extends AppCompatActivity {
 
     private void spinWheel() {
         isSpinning = true;
+        btnSpin.setEnabled(false);
+        btnSpin.setAlpha(0.5f);
 
         // 1. CHỌN TRƯỚC KẾT QUẢ
         int winningIndex = random.nextInt(possibleBonuses.length);
@@ -110,10 +112,12 @@ public class LuckyWheelActivity extends AppCompatActivity {
         // Cập nhật điểm và reset tem vào SharedPreferences
         SharedPreferences prefs = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         int currentPoints = prefs.getInt(Constants.KEY_POINTS, 0);
+        int currentStamps = prefs.getInt(Constants.KEY_STAMPS, 0);
 
+        int remainingStamps = Math.max(0, currentStamps - 8);
         prefs.edit()
                 .putInt(Constants.KEY_POINTS, currentPoints + currentBonus)
-                .putInt(Constants.KEY_STAMPS, 0)
+                .putInt(Constants.KEY_STAMPS, remainingStamps)
                 .apply();
 
         // Ghi lại lịch sử trúng thưởng vào Database SQLite
@@ -147,7 +151,6 @@ public class LuckyWheelActivity extends AppCompatActivity {
 
         snackbar.show();
 
-        // Delay 2.5 giây để người dùng đọc thông báo rồi mới thoát
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             finish();
         }, 2000);

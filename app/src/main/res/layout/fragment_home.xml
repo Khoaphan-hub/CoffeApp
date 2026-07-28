@@ -23,7 +23,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Good morning,"
+                android:text="Laura Cafe hello"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp" />
 
@@ -181,28 +181,50 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/tvMenuTitle"
-        android:layout_width="wrap_content"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutHome"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:text="Choose your coffee"
-        android:textColor="@color/text_primary"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loyaltyCard" />
+        android:layout_marginTop="16dp"
+        android:background="@color/background"
+        app:layout_constraintTop_toBottomOf="@id/loyaltyCard"
+        app:tabIndicatorColor="@color/primary"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabTextColor="@color/text_secondary">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCoffee"
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose coffee" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Favorites" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:paddingHorizontal="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvMenuTitle"
-        tools:listitem="@layout/item_coffee" />
+        app:layout_constraintTop_toBottomOf="@id/tabLayoutHome">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCoffee"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="10dp"
+            android:visibility="visible"
+            tools:listitem="@layout/item_coffee" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="10dp"
+            android:visibility="gone"
+            tools:listitem="@layout/item_favorite" />
+    </FrameLayout>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabGift"

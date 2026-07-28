@@ -30,7 +30,7 @@ public class DetailsActivity extends AppCompatActivity {
     private RadioGroup rgShot, rgSize, rgIce;
     private Button btnAddToCart;
     private ImageButton btnBack;
-    private ImageView ivProduct;
+    private ImageView ivProduct, btnFavorite;
     private TextView btnIncrease, btnDecrease;
     private int quantity = 1;
 
@@ -76,6 +76,7 @@ public class DetailsActivity extends AppCompatActivity {
         btnBack.setZ(10f); // Force high Z-index
         findViewById(R.id.btnCartPreview).setZ(10f); // Force high Z-index
         ivProduct = findViewById(R.id.ivProduct);
+        btnFavorite = findViewById(R.id.btnFavorite);
     }
 
     private void displayProductInfo() {
@@ -106,6 +107,7 @@ public class DetailsActivity extends AppCompatActivity {
             updateDynamicValues();
         });
         btnAddToCart.setOnClickListener(v -> addToCart());
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
     }
 
     private void updateDynamicValues() {
@@ -123,6 +125,54 @@ public class DetailsActivity extends AppCompatActivity {
         // Mock values for sugar and fat based on base calories
         tvSugarValue.setText(String.format(Locale.getDefault(), "%dg", (int)(calories * 0.1)));
         tvFatValue.setText(String.format(Locale.getDefault(), "%dg", (int)(calories * 0.05)));
+
+        updateFavoriteIcon();
+    }
+
+    private void updateFavoriteIcon() {
+        String shot = rgShot.getCheckedRadioButtonId() == R.id.rbDoubleShot ? "Double" : "Single";
+        String size = "Small";
+        int sizeId = rgSize.getCheckedRadioButtonId();
+        if (sizeId == R.id.rbMedium) size = "Medium";
+        else if (sizeId == R.id.rbLarge) size = "Large";
+
+        String ice = "Full";
+        int iceId = rgIce.getCheckedRadioButtonId();
+        if (iceId == R.id.rbNoIce) ice = "None";
+        else if (iceId == R.id.rbLessIce) ice = "Less";
+
+        boolean isFav = dbHelper.isFavorite(coffee.getId(), shot, size, ice);
+        if (isFav) {
+            btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+        } else {
+            btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+        }
+    }
+
+    private void toggleFavorite() {
+        String shot = rgShot.getCheckedRadioButtonId() == R.id.rbDoubleShot ? "Double" : "Single";
+        String size = "Small";
+        int sizeId = rgSize.getCheckedRadioButtonId();
+        if (sizeId == R.id.rbMedium) size = "Medium";
+        else if (sizeId == R.id.rbLarge) size = "Large";
+
+        String ice = "Full";
+        int iceId = rgIce.getCheckedRadioButtonId();
+        if (iceId == R.id.rbNoIce) ice = "None";
+        else if (iceId == R.id.rbLessIce) ice = "Less";
+
+        boolean isFav = dbHelper.isFavorite(coffee.getId(), shot, size, ice);
+
+        if (isFav) {
+            dbHelper.removeFavoriteByConfig(coffee.getId(), shot, size, ice);
+            Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show();
+        } else {
+            double price = CalorieEngine.calculatePrice(coffee.getBasePrice(), size, shot);
+            int calories = CalorieEngine.calculateCalories(coffee.getBaseCalories(), size, shot);
+            dbHelper.addFavorite(coffee.getId(), coffee.getName(), shot, size, ice, price, calories);
+            Toast.makeText(this, "Added to Favorites!", Toast.LENGTH_SHORT).show();
+        }
+        updateFavoriteIcon();
     }
 
     private void addToCart() {

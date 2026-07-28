@@ -6,13 +6,18 @@ public class Order {
     private double totalPrice;
     private String itemsSummary;
     private String status; // Ongoing, History
+    private String userName;   // MỚI THÊM
+    private int imageResId;    // MỚI THÊM
 
-    public Order(int id, String date, double totalPrice, String itemsSummary, String status) {
+    // Cập nhật Constructor
+    public Order(int id, String date, double totalPrice, String itemsSummary, String status, String userName, int imageResId) {
         this.id = id;
         this.date = date;
         this.totalPrice = totalPrice;
         this.itemsSummary = itemsSummary;
         this.status = status;
+        this.userName = userName;
+        this.imageResId = imageResId;
     }
 
     public int getId() { return id; }
@@ -20,4 +25,6 @@ public class Order {
     public double getTotalPrice() { return totalPrice; }
     public String getItemsSummary() { return itemsSummary; }
     public String getStatus() { return status; }
+    public String getUserName() { return userName; } // MỚI THÊM
+    public int getImageResId() { return imageResId; } // MỚI THÊM
 }

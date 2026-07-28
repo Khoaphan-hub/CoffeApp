@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "CoffeeCup.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 6;
 
     // Cart Table
     public static final String TABLE_CART = "cart";
@@ -26,12 +26,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TOTAL_CALORIES = "total_calories";
     public static final String COLUMN_QUANTITY = "quantity";
 
+    // Favorites Table
+    public static final String TABLE_FAVORITES = "favorites";
+    public static final String COLUMN_FAVORITE_ID = "id";
+    public static final String COLUMN_FAV_COFFEE_ID = "coffee_id";
+    public static final String COLUMN_FAV_COFFEE_NAME = "coffee_name";
+    public static final String COLUMN_FAV_SHOT = "shot";
+    public static final String COLUMN_FAV_SIZE = "size";
+    public static final String COLUMN_FAV_ICE = "ice";
+    public static final String COLUMN_FAV_TOTAL_PRICE = "total_price";
+    public static final String COLUMN_FAV_TOTAL_CALORIES = "total_calories";
+
     // Orders Table
     public static final String TABLE_ORDERS = "orders";
     public static final String COLUMN_ORDER_ID = "id";
     public static final String COLUMN_ORDER_DATE = "order_date";
     public static final String COLUMN_ORDER_PRICE = "total_price";
-    public static final String COLUMN_ORDER_CALORIES = "total_calories";
+    public static final String COLUMN_ORDER_CALORIES = "total_calories"; // Cột mới thêm
     public static final String COLUMN_ORDER_ITEMS = "items_summary";
     public static final String COLUMN_ORDER_STATUS = "status"; // Ongoing, History
 
@@ -50,6 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_GIFT_MESSAGE = "message";
     public static final String COLUMN_GIFT_DATE = "date";
 
+    public static final String COLUMN_ORDER_USER_NAME = "user_name";
+    public static final String COLUMN_ORDER_IMAGE = "image_res_id";
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -68,11 +81,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_QUANTITY + " INTEGER" + ")";
         db.execSQL(CREATE_CART_TABLE);
 
+        // ĐÃ SỬA: Thêm COLUMN_ORDER_CALORIES vào lệnh tạo bảng Orders
         String CREATE_ORDERS_TABLE = "CREATE TABLE " + TABLE_ORDERS + "("
                 + COLUMN_ORDER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_ORDER_DATE + " TEXT,"
                 + COLUMN_ORDER_PRICE + " REAL,"
+                + COLUMN_ORDER_CALORIES + " INTEGER,"
                 + COLUMN_ORDER_ITEMS + " TEXT,"
+                + COLUMN_ORDER_USER_NAME + " TEXT,"     // Thêm cột này
+                + COLUMN_ORDER_IMAGE + " INTEGER,"      // Thêm cột này
                 + COLUMN_ORDER_STATUS + " TEXT" + ")";
         db.execSQL(CREATE_ORDERS_TABLE);
 
@@ -90,10 +107,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_GIFT_MESSAGE + " TEXT,"
                 + COLUMN_GIFT_DATE + " TEXT" + ")";
         db.execSQL(CREATE_GIFT_TABLE);
+
+        String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
+                + COLUMN_FAVORITE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_FAV_COFFEE_ID + " INTEGER,"
+                + COLUMN_FAV_COFFEE_NAME + " TEXT,"
+                + COLUMN_FAV_SHOT + " TEXT,"
+                + COLUMN_FAV_SIZE + " TEXT,"
+                + COLUMN_FAV_ICE + " TEXT,"
+                + COLUMN_FAV_TOTAL_PRICE + " REAL,"
+                + COLUMN_FAV_TOTAL_CALORIES + " INTEGER" + ")";
+        db.execSQL(CREATE_FAVORITES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // ĐÃ CHUẨN HÓA LOGIC CẬP NHẬT TỪNG PHIÊN BẢN (Không bị xóa nhầm data cũ)
         if (oldVersion < 2) {
             String CREATE_POINTS_TABLE = "CREATE TABLE " + TABLE_POINTS_HISTORY + "("
                     + COLUMN_POINT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -102,6 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_POINT_SOURCE + " TEXT" + ")";
             db.execSQL(CREATE_POINTS_TABLE);
         }
+
         if (oldVersion < 3) {
             String CREATE_GIFT_TABLE = "CREATE TABLE " + TABLE_GIFT + "("
                     + COLUMN_GIFT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -111,12 +141,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_GIFT_DATE + " TEXT" + ")";
             db.execSQL(CREATE_GIFT_TABLE);
         }
-        if (oldVersion >= 3 && newVersion > oldVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CART);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_POINTS_HISTORY);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_GIFT);
-            onCreate(db);
+
+        if (oldVersion < 4) {
+            try {
+                // Tiêm thêm cột total_calories vào bảng đã có
+                db.execSQL("ALTER TABLE " + TABLE_ORDERS + " ADD COLUMN " + COLUMN_ORDER_CALORIES + " INTEGER DEFAULT 0");
+            } catch (android.database.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion < 5) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_ORDERS + " ADD COLUMN " + COLUMN_ORDER_USER_NAME + " TEXT DEFAULT 'Guest'");
+                db.execSQL("ALTER TABLE " + TABLE_ORDERS + " ADD COLUMN " + COLUMN_ORDER_IMAGE + " INTEGER DEFAULT 0");
+            } catch (android.database.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion < 6) {
+            String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
+                    + COLUMN_FAVORITE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_FAV_COFFEE_ID + " INTEGER,"
+                    + COLUMN_FAV_COFFEE_NAME + " TEXT,"
+                    + COLUMN_FAV_SHOT + " TEXT,"
+                    + COLUMN_FAV_SIZE + " TEXT,"
+                    + COLUMN_FAV_ICE + " TEXT,"
+                    + COLUMN_FAV_TOTAL_PRICE + " REAL,"
+                    + COLUMN_FAV_TOTAL_CALORIES + " INTEGER" + ")";
+            db.execSQL(CREATE_FAVORITES_TABLE);
         }
     }
 
@@ -150,12 +202,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_CART, null, null);
     }
 
-    public long placeOrder(String date, double totalPrice, String itemsSummary) {
+    // ĐÃ SỬA: Hàm placeOrder nhận thêm tham số int totalCalories
+    public long placeOrder(String date, double totalPrice, int totalCalories, String itemsSummary, String userName, int imageResId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_ORDER_DATE, date);
         values.put(COLUMN_ORDER_PRICE, totalPrice);
+        values.put(COLUMN_ORDER_CALORIES, totalCalories);
         values.put(COLUMN_ORDER_ITEMS, itemsSummary);
+        values.put(COLUMN_ORDER_USER_NAME, userName);
+        values.put(COLUMN_ORDER_IMAGE, imageResId);
         values.put(COLUMN_ORDER_STATUS, "Ongoing");
         return db.insert(TABLE_ORDERS, null, values);
     }
@@ -175,6 +231,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteOrdersByStatus(String status) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_ORDERS, COLUMN_ORDER_STATUS + "=?", new String[]{status});
+    }
+
+    // ĐÃ THÊM: Lấy toàn bộ đơn hàng để phục vụ cho Dashboard
+    public Cursor getAllOrdersForStats() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_ORDERS, null, null, null, null, null, COLUMN_ORDER_ID + " DESC");
     }
 
     // Points History Operations
@@ -206,5 +268,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_GIFT_MESSAGE, message);
         values.put(COLUMN_GIFT_DATE, date);
         db.insert(TABLE_GIFT, null, values);
+    }
+
+    // Favorites Operations
+    public long addFavorite(int coffeeId, String name, String shot, String size, String ice, double price, int calories) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_FAV_COFFEE_ID, coffeeId);
+        values.put(COLUMN_FAV_COFFEE_NAME, name);
+        values.put(COLUMN_FAV_SHOT, shot);
+        values.put(COLUMN_FAV_SIZE, size);
+        values.put(COLUMN_FAV_ICE, ice);
+        values.put(COLUMN_FAV_TOTAL_PRICE, price);
+        values.put(COLUMN_FAV_TOTAL_CALORIES, calories);
+        return db.insert(TABLE_FAVORITES, null, values);
+    }
+
+    public Cursor getFavorites() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_FAVORITES, null, null, null, null, null, COLUMN_FAVORITE_ID + " DESC");
+    }
+
+    public void removeFavorite(int favoriteId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_FAVORITES, COLUMN_FAVORITE_ID + "=?", new String[]{String.valueOf(favoriteId)});
+    }
+
+    public void removeFavoriteByConfig(int coffeeId, String shot, String size, String ice) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_FAVORITES, COLUMN_FAV_COFFEE_ID + "=? AND " + COLUMN_FAV_SHOT + "=? AND " +
+                COLUMN_FAV_SIZE + "=? AND " + COLUMN_FAV_ICE + "=?",
+                new String[]{String.valueOf(coffeeId), shot, size, ice});
+    }
+
+    public boolean isFavorite(int coffeeId, String shot, String size, String ice) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_FAV_COFFEE_ID + "=? AND " + COLUMN_FAV_SHOT + "=? AND " +
+                COLUMN_FAV_SIZE + "=? AND " + COLUMN_FAV_ICE + "=?";
+        String[] selectionArgs = {String.valueOf(coffeeId), shot, size, ice};
+        Cursor cursor = db.query(TABLE_FAVORITES, null, selection, selectionArgs, null, null, null);
+        boolean exists = (cursor != null && cursor.getCount() > 0);
+        if (cursor != null) cursor.close();
+        return exists;
     }
 }

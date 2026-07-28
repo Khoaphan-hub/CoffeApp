@@ -77,7 +77,7 @@ public class OrdersFragment extends Fragment {
     private void loadOrders(String status) {
         orderList = new ArrayList<>();
         Cursor cursor = dbHelper.getOrders(status);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_ID));
@@ -85,12 +85,15 @@ public class OrdersFragment extends Fragment {
                 double price = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_PRICE));
                 String summary = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_ITEMS));
                 String ordStatus = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_STATUS));
-                
-                orderList.add(new Order(id, date, price, summary, ordStatus));
+
+                String userName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_USER_NAME));
+                int imageResId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ORDER_IMAGE));
+
+                orderList.add(new Order(id, date, price, summary, ordStatus, userName, imageResId));
             } while (cursor.moveToNext());
         }
         cursor.close();
-        
+
         adapter = new OrderAdapter(orderList, order -> {
             dbHelper.updateOrderStatus(order.getId(), "History");
             loadOrders("Ongoing");

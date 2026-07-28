@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -49,6 +50,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.tvItems.setText(order.getItemsSummary());
         holder.tvStatus.setText(order.getStatus());
 
+        // Cập nhật tên và hình ảnh
+        holder.tvUserName.setText(order.getUserName());
+        if (order.getImageResId() != 0) {
+            holder.ivImage.setImageResource(order.getImageResId());
+        } else {
+            holder.ivImage.setImageResource(R.drawable.ic_cart);
+        }
+
         if (order.getStatus().equals("Ongoing")) {
             holder.tvStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.status_ongoing));
             holder.btnMarkComplete.setVisibility(View.VISIBLE);
@@ -66,7 +75,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     }
 
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvStatus, tvItems, tvPrice;
+        // ĐÃ KHAI BÁO THÊM tvUserName và ivImage
+        TextView tvDate, tvStatus, tvItems, tvPrice, tvUserName;
+        ImageView ivImage;
         Button btnMarkComplete;
 
         public OrderViewHolder(@NonNull View itemView) {
@@ -76,6 +87,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             tvItems = itemView.findViewById(R.id.tvOrderItems);
             tvPrice = itemView.findViewById(R.id.tvOrderPrice);
             btnMarkComplete = itemView.findViewById(R.id.btnMarkComplete);
+
+            // ĐÃ THÊM ÁNH XẠ VIEW
+            tvUserName = itemView.findViewById(R.id.tvOrderUserName);
+            ivImage = itemView.findViewById(R.id.ivOrderImage);
         }
     }
 }
