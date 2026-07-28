@@ -131,44 +131,48 @@ public class HomeFragment extends Fragment {
 
         List<Coffee> coffees = Constants.getCoffeeList();
         Coffee randomCoffee = coffees.get(new Random().nextInt(coffees.size()));
-        int randomTable = new Random().nextInt(20) + 1;
-        String[] mockMsgs = {
-                "You look cool today! Enjoy this drink.",
-                "Happy Monday! Have a coffee on me.",
-                "Sharing is caring. Cheers!",
-                "I ordered too many. Please help me drink one!"
+        
+        String[] shopMsgs = {
+                "Surprise! A small treat from our cafe to brighten your day.",
+                "Congratulations! You've been selected for a random surprise.",
+                "Enjoy this complimentary drink on us!",
+                "We love having you here. Enjoy this coffee!"
         };
 
         tvDrink.setText(randomCoffee.getName());
-        tvTable.setText("From Table " + String.format(Locale.getDefault(), "%02d", randomTable));
-        tvMsg.setText("\"" + mockMsgs[new Random().nextInt(mockMsgs.length)] + "\"");
+        tvTable.setText("Surprise from Cafe");
+        tvMsg.setText("\"" + shopMsgs[new Random().nextInt(shopMsgs.length)] + "\"");
 
         androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .create();
 
         btnClaim.setOnClickListener(v -> {
-            handleClaimGift(randomTable);
+            handleClaimGift(randomCoffee);
             dialog.dismiss();
         });
 
         dialog.show();
     }
 
-    private void handleClaimGift(int tableNum) {
+    private void handleClaimGift(Coffee coffee) {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
-        int currentPoints = prefs.getInt(Constants.KEY_POINTS, 0);
-        int bonus = 200;
-        prefs.edit().putInt(Constants.KEY_POINTS, currentPoints + bonus).apply();
+        int currentStamps = prefs.getInt(Constants.KEY_STAMPS, 0);
+
+        // Add to Cart with $0 price
+        dbHelper.addToCart(coffee.getId(), coffee.getName(), "Single", "Small", "Full", 0.0, 0, 1);
+        
+        // Award 1 stamp
+        prefs.edit().putInt(Constants.KEY_STAMPS, currentStamps + 1).apply();
 
         String date = new SimpleDateFormat("dd MMM | hh:mm a", Locale.getDefault()).format(new Date());
-        dbHelper.addPointTransaction(date, bonus, "Gift from Table " + tableNum);
+        dbHelper.addPointTransaction(date, 0, "Surprise Gift: " + coffee.getName());
 
         hasPendingGift = false;
         viewGiftBadge.setVisibility(View.GONE);
 
         com.google.android.material.snackbar.Snackbar snackbar =
-                com.google.android.material.snackbar.Snackbar.make(requireView(), "🎁 Claimed! 200 points added.", 3000);
+                com.google.android.material.snackbar.Snackbar.make(requireView(), "🎁 Gift added to Cart! (+1 Stamp)", 3000);
         View sbView = snackbar.getView();
         sbView.setBackgroundColor(Color.parseColor("#4CAF50"));
         snackbar.show();
@@ -228,6 +232,7 @@ public class HomeFragment extends Fragment {
     private void handleGiftTransaction(String drink, String table, String message) {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         int currentPoints = prefs.getInt(Constants.KEY_POINTS, 0);
+        int currentStamps = prefs.getInt(Constants.KEY_STAMPS, 0);
         int giftCost = 1500;
 
         if (currentPoints < giftCost) {
@@ -235,7 +240,11 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        prefs.edit().putInt(Constants.KEY_POINTS, currentPoints - giftCost).apply();
+        // Deduct points and Add 1 stamp
+        prefs.edit()
+                .putInt(Constants.KEY_POINTS, currentPoints - giftCost)
+                .putInt(Constants.KEY_STAMPS, currentStamps + 1)
+                .apply();
 
         String date = new SimpleDateFormat("dd MMM | hh:mm a", Locale.getDefault()).format(new Date());
         dbHelper.addGift(drink, table, message, date);
